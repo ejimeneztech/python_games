@@ -142,20 +142,17 @@ while True:
     for enemy in enemies:
         if pygame.sprite.spritecollideany(P1, enemies):
             HEALTH -= 50
-            #enemy.self_destruct()
+            #enemy.self_destruct(); removed this because it ends the game since there is only 1 enemy sprite being moved around the screen
             enemy.rect = enemy.surf.get_rect(center = (random.randint(40, SCREEN_WIDTH-40)
                                                ,0))
             
             
-            #if health ==0 and lives > 0:
-               # health += 200
-                #lives-= 1
-            #elif health == 0 and lives ==0
-              #end game
-             
-            LIVES -= 1
+            if HEALTH  == 0 and LIVES > 0:
+               HEALTH += 200
+               LIVES -= 1
             
-            if LIVES== 0:
+            
+            if LIVES == 0:
            
                 DISPLAYSURF.fill(RED)
                 DISPLAYSURF.blit(game_over, (30,250))
