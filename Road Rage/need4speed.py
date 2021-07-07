@@ -6,6 +6,7 @@ from pygame.locals import *
 import random
 import os
 import time
+
  
 pygame.init()
  
@@ -24,7 +25,7 @@ SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 600
 SPEED = 5
 SCORE = 0
-LIFE = 3
+HEALTH = 3
 
 #Setting up Fonts
 font = pygame.font.SysFont("Verdana", 60)
@@ -52,7 +53,11 @@ class Enemy(pygame.sprite.Sprite):
             SCORE += 1
             self.rect.top = 0
             self.rect.center = (random.randint(30, 370), 0)
- 
+
+      
+      def self_destruct(self):
+          self.kill()
+          
    
  
  
@@ -71,28 +76,34 @@ class Player(pygame.sprite.Sprite):
             #self.rect.move_ip(0,5)
          
         if self.rect.left > 0:
-              if pressed_keys[K_LEFT]:
+              if pressed_keys[K_a]:
                   self.rect.move_ip(-5, 0)
         if self.rect.right < SCREEN_WIDTH:        
-              if pressed_keys[K_RIGHT]:
+              if pressed_keys[K_d]:
                   self.rect.move_ip(5, 0)
  
+
+
        
- 
+
 #setting up sprites         
 P1 = Player()
 E1 = Enemy()
 
+
 #Creating Sprites Groups
 enemies = pygame.sprite.Group()
 enemies.add(E1)
+
 all_sprites = pygame.sprite.Group()
 all_sprites.add(P1)
 all_sprites.add(E1)
+
  
 #Adding a new User event 
 INC_SPEED = pygame.USEREVENT + 1
 pygame.time.set_timer(INC_SPEED, 1000)
+
 
 while True:     
     for event in pygame.event.get():              
@@ -107,29 +118,42 @@ while True:
     DISPLAYSURF.blit(background, (0,0))
     scores = font_small.render(str(SCORE), True, BLACK)
     DISPLAYSURF.blit(scores, (10,10))
-    lives = font_small.render(str(LIFE),True, BLACK)
-    DISPLAYSURF.blit(lives, (10, 40))
+    health_remaining = font_small.render(str(HEALTH),True, BLACK)
+    DISPLAYSURF.blit(health_remaining, (10, 40))
 
-
-    #Moves and Re-draws all Sprites
+   
+        #Moves and Re-draws all Sprites
     for entity in all_sprites:
         DISPLAYSURF.blit(entity.image, entity.rect)
         entity.move()
- 
+    
+    
     #To be run if collision occurs between Player and Enemy
-    if pygame.sprite.spritecollideany(P1, enemies):
-          pygame.mixer.Sound('crash.wav').play()
-          time.sleep(0.5)
+    for enemy in enemies:
+        if pygame.sprite.spritecollideany(P1, enemies):
+            
+            #enemy.self_destruct()
+            enemy.rect = enemy.surf.get_rect(center = (random.randint(40, SCREEN_WIDTH-40)
+                                               ,0))
+            
+            
+            
+            HEALTH -= 1
+        
+            if HEALTH == 0:
+           
+                DISPLAYSURF.fill(RED)
+                DISPLAYSURF.blit(game_over, (30,250))
 
-          DISPLAYSURF.fill(RED)
-          DISPLAYSURF.blit(game_over, (30,250))
+                pygame.display.update()
+                for entity in all_sprites:
+                        entity.kill() 
+                time.sleep(2)
+                pygame.quit()
+                sys.exit()      
 
-          pygame.display.update()
-          for entity in all_sprites:
-                entity.kill() 
-          time.sleep(2)
-          pygame.quit()
-          sys.exit()      
-         
+    
+    
+
     pygame.display.update()
     FramePerSec.tick(FPS)
