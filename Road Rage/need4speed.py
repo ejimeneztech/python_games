@@ -1,7 +1,9 @@
 #https://coderslegacy.com/python/python-pygame-tutorial/
-#Adding the concept of multiple Lives or a Health bar.
+#Add Health bar (using 2 rects [green and redS]). When health bar goes down to 0 reduce 1 life from player. When LIVES = 0, game over.
+
 
 import pygame, sys
+from pygame import surface
 from pygame.locals import *
 import random
 import os
@@ -25,7 +27,9 @@ SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 600
 SPEED = 5
 SCORE = 0
-HEALTH = 3
+LIVES = 3
+#create health variable
+HEALTH = 200
 
 #Setting up Fonts
 font = pygame.font.SysFont("Verdana", 60)
@@ -118,10 +122,16 @@ while True:
     DISPLAYSURF.blit(background, (0,0))
     scores = font_small.render(str(SCORE), True, BLACK)
     DISPLAYSURF.blit(scores, (10,10))
-    health_remaining = font_small.render(str(HEALTH),True, BLACK)
-    DISPLAYSURF.blit(health_remaining, (10, 40))
+    lives_remaining = font_small.render(str(LIVES),True, BLACK)
+    DISPLAYSURF.blit(lives_remaining, (10, 40))
 
-   
+  
+    #draw health bar
+    
+    pygame.draw.rect(DISPLAYSURF, RED, (10, 65, 200, 5))
+    pygame.draw.rect(DISPLAYSURF, GREEN, (10, 65, HEALTH, 5))
+
+    
         #Moves and Re-draws all Sprites
     for entity in all_sprites:
         DISPLAYSURF.blit(entity.image, entity.rect)
@@ -131,16 +141,21 @@ while True:
     #To be run if collision occurs between Player and Enemy
     for enemy in enemies:
         if pygame.sprite.spritecollideany(P1, enemies):
-            
+            HEALTH -= 50
             #enemy.self_destruct()
             enemy.rect = enemy.surf.get_rect(center = (random.randint(40, SCREEN_WIDTH-40)
                                                ,0))
             
             
+            #if health ==0 and lives > 0:
+               # health += 200
+                #lives-= 1
+            #elif health == 0 and lives ==0
+              #end game
+             
+            LIVES -= 1
             
-            HEALTH -= 1
-        
-            if HEALTH == 0:
+            if LIVES== 0:
            
                 DISPLAYSURF.fill(RED)
                 DISPLAYSURF.blit(game_over, (30,250))
